@@ -24,6 +24,7 @@
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 {
+  printf("x");
   return 0;
 }
 
