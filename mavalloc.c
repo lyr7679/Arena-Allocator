@@ -36,15 +36,19 @@ struct Node *arena_arr[MAX_ALLOC];
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 {
+  printf("x");
     if(size < 0)
         return -1;
         
     return 0;
+    printf("x");
 }
 
 void mavalloc_destroy( )
 {
+  printf("x");
   return;
+  printf("x");
 }
 
 void * mavalloc_alloc( size_t size )
