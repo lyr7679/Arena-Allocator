@@ -36,6 +36,7 @@ struct Node *arena_arr[MAX_ALLOC];
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 {
+  //21412342
     if(size < 0)
         return -1;
         
