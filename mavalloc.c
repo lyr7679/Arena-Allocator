@@ -355,7 +355,7 @@ int insertNodeInternal(int previous, int current)
 	 */
 	else
 	{
-		arena_arr[rootNode]->previous = indexx
+		arena_arr[rootNode]->previous = indexx;
 		arena_arr[indexx]->previous = -1;
 		arena_arr[indexx]->next = rootNode;
 		rootNode = indexx;
