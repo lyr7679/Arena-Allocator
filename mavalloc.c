@@ -41,8 +41,10 @@ struct Node {
 
 //function prototypes
 int findFreeNodeInternal(size_t);
-void * first_fit(size_t size);
+void * first_fit(size_t);
 void * next_fit(size_t);
+void * best_fit(size_t);
+void * worst_fit(size_t);
 int insertNode(int);
 int insertNodeInternal(int, int);
 void checkMerge(int);
@@ -230,6 +232,16 @@ void * first_fit(size_t size)
 }
 
 void * next_fit(size_t size)
+{
+    return NULL;
+}
+
+void * best_fit(size_t size)
+{
+    return NULL;
+}
+
+void * worst_fit(size_t size)
 {
     return NULL;
 }
