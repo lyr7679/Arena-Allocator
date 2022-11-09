@@ -20,6 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// * added best fit and worst fit, think its done but i havent checked edge cases
+// * added a print array function, will have to remove declaration in mavalloch.h later
+// * added insertnode1, think it works, can use with all fit functions
+// * removed the indexx++ in the mavalloc init because it messes with my code, making it add twice and have an empty node at spot 1
+// * need a good way to track head of array
+// * i think the fit functions should return the index of the hole like i did but up to you (need for insertnode1)
+// * also need a function that will free up node that have 0 size, the way insertnode1 works is that even if size is zero for hole
+//   it will still stay in arena_arr. this will mess us up when we have to count the nodes, also makes it so that it will have to 
+//   travel through the empty node to traverse arena_arr
+// * also i only changed benchmark 4 so keep that in mind
+
 #include "mavalloc.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -49,6 +60,7 @@ int best_fit(size_t);
 int worst_fit(size_t);
 void checkMerge(int);
 void insertNode(int indexOfHole, size_t size);
+int findRootNode();
 void printArr();
 
 //global variables
@@ -109,15 +121,19 @@ void * mavalloc_alloc( size_t size )
         case BEST_FIT:
         {
           indexOfHole = best_fit(size);
-          if(indexOfHole != -1)
-            insertNode(indexOfHole, size);     
+          if(indexOfHole != -1) { 
+            insertNode(indexOfHole, size);
+            new_ptr = arena_arr[indexx].arena; 
+          }    
           break;
         }
         case WORST_FIT:
         {
           indexOfHole = worst_fit(size);
-          if(indexOfHole != -1)
-            insertNode(indexOfHole, size);  
+          if(indexOfHole != -1) {
+            insertNode(indexOfHole, size); 
+            new_ptr = arena_arr[indexx].arena; 
+          } 
           break;
         }
     }
@@ -142,6 +158,10 @@ void mavalloc_free( void * ptr )
 int mavalloc_size( )
 {
   int number_of_nodes = 0;
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].size > 0 && arena_arr[i].type == P)
+      number_of_nodes++;
+  }
 
   return number_of_nodes;
 }
@@ -239,6 +259,7 @@ int worst_fit(size_t size)
 }
 
 void insertNode(int indexOfHole, size_t size) {
+  size = ALIGN4(size);
   arena_arr[indexx].size = size;
   arena_arr[indexx].type = P;
   arena_arr[indexx].arena = arena_arr[indexOfHole].arena;
@@ -253,7 +274,7 @@ void insertNode(int indexOfHole, size_t size) {
 }
 
 void printArr() {
-  int index = rootNode;
+  int index = findRootNode();;
   while(arena_arr[index].next != -1) {
     printf("size: %ld\n", arena_arr[index].size);
     printf("type: %d\n", arena_arr[index].type);
@@ -268,4 +289,12 @@ void printArr() {
   printf("pointer: %p\n", arena_arr[index].arena);
   printf("next: %d\n", arena_arr[index].next);
   printf("previous: %d\n\n", arena_arr[index].previous);
+}
+
+int findRootNode() {
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].previous == -1)
+      return i;
+  }
+  return -1;
 }
