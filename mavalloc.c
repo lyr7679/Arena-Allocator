@@ -123,15 +123,19 @@ void * mavalloc_alloc( size_t size )
         case BEST_FIT:
         {
           indexOfHole = best_fit(size);
-          if(indexOfHole != -1)
-            insertNode(indexOfHole, size);     
+          if(indexOfHole != -1) { 
+            insertNode(indexOfHole, size);
+            new_ptr = arena_arr[indexx].arena; 
+          }    
           break;
         }
         case WORST_FIT:
         {
           indexOfHole = worst_fit(size);
-          if(indexOfHole != -1)
-            insertNode(indexOfHole, size);  
+          if(indexOfHole != -1) {
+            insertNode(indexOfHole, size); 
+            new_ptr = arena_arr[indexx].arena; 
+          } 
           break;
         }
     }
@@ -156,6 +160,10 @@ void mavalloc_free( void * ptr )
 int mavalloc_size( )
 {
   int number_of_nodes = 0;
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].size > 0 && arena_arr[i].type == P)
+      number_of_nodes++;
+  }
 
   return number_of_nodes;
 }
@@ -253,6 +261,7 @@ int worst_fit(size_t size)
 }
 
 void insertNode(int indexOfHole, size_t size) {
+  size = ALIGN4(size);
   arena_arr[indexx].size = size;
   arena_arr[indexx].type = P;
   arena_arr[indexx].arena = arena_arr[indexOfHole].arena;
