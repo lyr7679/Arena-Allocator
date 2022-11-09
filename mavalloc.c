@@ -22,6 +22,7 @@
 
 #include "mavalloc.h"
 #include <stdlib.h>
+#include <stdio.h>
 
 #define MAX_ALLOC 10000
 
@@ -41,25 +42,35 @@ struct Node {
 
 //function prototypes
 int findFreeNodeInternal(size_t);
-void * first_fit(size_t size);
-void * next_fit(size_t);
-int insertNode(int);
-int insertNodeInternal(int, int);
+int first_fit(size_t);
+int next_fit(size_t);
 void checkMerge(int);
+void insertNode(int, size_t);
+int findRootNode();
 
 //global variables
-struct Node *arena_arr[MAX_ALLOC];
+struct Node arena_arr[MAX_ALLOC];
+//indexx is the number denoting the current node
 int indexx = 0;
+//used in a switch/case for the 4 different fits
 enum ALGORITHM curr_alg;
+//address of first node
 void *head;
-int rootNode = 1;
+//index used for tracking w/ next fit
+int nf_indexx = 0;
+//flag used to denote if the first free node
+//has been found with next fit
 int initialized = 0;
+
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 {
-    // indexx = 0;
-    // rootNode = 1;
-    // initialized = 0;
+    //clearing all global variables so when multiple tests are called
+    //old data is not kept
+    indexx = 0;
+    initialized = 0;
+    nf_indexx = 0;
+    head = NULL;
 
     if(size < 0)
         return -1;
@@ -68,26 +79,21 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 
     head = malloc(ALIGN4(size));
 
-    // arena_arr[0].arena = malloc(ALIGN4(size));
-    arena_arr[0]->arena = head;
-    arena_arr[0]->size = size;
-    arena_arr[0]->type = H;
-    //
-    //it's the initial mem block so it has nothing in front or behind
-    arena_arr[0]->next = -1;
-    arena_arr[0]->previous = -1;
-    //
-    //initialized++;
-    indexx++;
-    //
-    if(arena_arr[0]->arena == NULL)
-        return -1;
+    arena_arr[0].arena = head;
+    arena_arr[0].size = size;
+    arena_arr[0].type = H;
 
-    //insertNode(size);
+    //it's the initial mem block so it has nothing in front or behind
+    arena_arr[0].next = -1;
+    arena_arr[0].previous = -1;
+
+    if(arena_arr[0].arena == NULL)
+        return -1;
 
     return 0;
 }
 
+//frees initially allocated address to clear array/linked list
 void mavalloc_destroy( )
 {
     free(head);
@@ -97,17 +103,31 @@ void mavalloc_destroy( )
 void * mavalloc_alloc( size_t size )
 {
     void * new_ptr = NULL;
+    int indexOfHole;
 
     switch(curr_alg)
         {
         case NEXT_FIT:
         {
-            new_ptr = next_fit(size);
+            indexOfHole = next_fit(size);
+            nf_indexx = indexOfHole;
+            if(indexOfHole != -1)
+            {
+                indexx++;
+                insertNode(indexOfHole, size);
+                new_ptr = arena_arr[indexx].arena;
+            }
             break;
         }
         case FIRST_FIT:
         {
-            first_fit(size);
+            indexOfHole = first_fit(size);
+            if(indexOfHole != -1)
+            {
+                indexx++;
+                insertNode(indexOfHole, size);
+                new_ptr = arena_arr[indexx].arena;
+            }
             break;
         }
         case BEST_FIT:
@@ -129,9 +149,9 @@ void mavalloc_free( void * ptr )
 {
     for(int i = 0; i <= indexx; i++)
     {
-        if(arena_arr[i]->arena == ptr)
+        if(arena_arr[i].arena == ptr)
         {
-            arena_arr[i]->type = H;
+            arena_arr[i].type = H;
             checkMerge(i);
             break;
         }
@@ -142,26 +162,29 @@ void mavalloc_free( void * ptr )
 int mavalloc_size( )
 {
   int number_of_nodes = 0;
-
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].size > 0)
+      number_of_nodes++;
+  }
   return number_of_nodes;
 }
 
-//helper func
-int findFreeNodeInternal(size_t size)
+//first fit: insert into first free node found
+//always start at beginning of table
+int first_fit(size_t size)
 {
-	//int i = 0;
-	/**
-	 *  Start searching the array beginning at the 0th element
-	 *  and once we've found an element not in use we'll drop out
-	 *  and return the index that is free.
-	*/
-	for (int i = 0; i < MAX_ALLOC; i++)
-	{
-		if (arena_arr[i]->type == H && arena_arr[i]->size >= size)
-		{
-			return i;
-		}
-	}
+	int j = findRootNode();
+    while(j < MAX_ALLOC && j != -1)
+    {
+        if (arena_arr[j].type == H && arena_arr[j].size >= size)
+        {
+            return j;
+        }
+        else
+        {
+            j = arena_arr[j].next;
+        }
+    }
 	return -1;
 }
 
@@ -169,200 +192,109 @@ int findFreeNodeInternal(size_t size)
 //if there is - merge (always merge into earlier node)
 void checkMerge(int current)
 {
-    int next = arena_arr[current]->next;
-    int previous = arena_arr[current]->previous;
+    int next = arena_arr[current].next;
+    int previous = arena_arr[current].previous;
     int temp = 0;
-    if(arena_arr[next]->type == H)
+    //combining if next node is also a hole
+    if(arena_arr[next].type == H)
     {
         //combing size into current node
-        arena_arr[current]->size += arena_arr[next]->size;
-        arena_arr[next]->size = 0;
+        arena_arr[current].size += arena_arr[next].size;
+        arena_arr[next].size = 0;
 
         //eliminate pointer connections between node of size zero
-        arena_arr[current]->next = arena_arr[next]->next;
-        temp = arena_arr[next]->next;
-        arena_arr[temp]->previous = current;
+        arena_arr[current].next = arena_arr[next].next;
+        temp = arena_arr[next].next;
+        arena_arr[temp].previous = current;
     }
-    else if(arena_arr[previous]->type == H)
+    //combining if previous node is also a hole
+    else if(arena_arr[previous].type == H)
     {
-        arena_arr[previous]->size += arena_arr[current]->size;
-        arena_arr[current]->size = 0;
+        arena_arr[previous].size += arena_arr[current].size;
+        arena_arr[current].size = 0;
 
-        arena_arr[previous]->next = arena_arr[current]->next;
-        temp = arena_arr[current]->next;
-        arena_arr[temp]->previous = previous;
+        arena_arr[previous].next = arena_arr[current].next;
+        temp = arena_arr[current].next;
+        arena_arr[temp].previous = previous;
     }
 }
 
-void * first_fit(size_t size)
+//next fit: same as first fit, just tracking where last left off on
+//inserting a node so we start search from there
+//if nothing found, loop around and try again
+//if second loop occurs and still no free node is found, then return -1
+int next_fit(size_t size)
 {
-    //first fit: searches mem for first free hole and inserts
-    //starts from beginning of list every time
-    int success = -1;
-    //int freespot = 0;
-    //int freespot = findFreeNodeInternal(i);
+    //j is used as a current node index
+	int j = findRootNode();
+    int count = 0;
 
-
-    // while(success != 1 && status != -1)
-    // {
-    //     freespot = findFreeNodeInternal(freespot);
-    //     if(freespot == -1)
-    //         *status = -1;
-    //     else
-    //     {
-    //         if(arena_arr[freespot].size >= size)
-    //         {
-    //
-    //         }
-    //     }
-    //
-    //
-    //
-    // }
-
-    success = insertNode(size);
-    if(success == 0)
-        return arena_arr[indexx]->arena;
+    //if we've already started next fit, we'll start at the last left off node
+    //otherwise we start the search at the root node
+    if(initialized == 1)
+        j = nf_indexx;
     else
-        return NULL;
+        initialized = 1;
 
-
-}
-
-void * next_fit(size_t size)
-{
-    return NULL;
-}
-
-int insertNode(int size)
-{
-     /** Index into the array where we will put this new node */
-	int free_node  =  findFreeNodeInternal(size);
-
-     /** Set current to the rootNode so we start searching from the beginning */
-	//int current  =  rootNode;
-
-    /** Set previous to -1 since there nothing before the first node in the list */
-	int previous = -1;
-
-    /** Our return value.  -1 on failure. 0 on success. */
-	int ret      = -1;
-
-    /**
-     * On the first node being inserted make sure that
-     * the root node has been initialized and then
-     * set the initialized flag to we don't do this initialization
-     * again.
-     */
-	if (initialized == 0)
-	{
-		arena_arr[1]->previous = -1;
-		arena_arr[1]->next     =  0;
-        arena_arr[1]->arena = head;
-        arena_arr[0]->previous = 1;
-		//initialized            =  1;
-	}
-
-	if (free_node >= 0 && initialized == 1 && indexx < MAX_ALLOC)
-	{
-      /**
-       * Since this list is sorted, iterate over the linked list and find which node we would
-       * fit behind with our value.  Once we have found a spot then the while loop will exit
-       * and previous will have the index of the node we will insert behind.
-       */
-		// while (current >= 0 && (arena_arr[current]->type == P) && arena_arr[current]->size < size)
-		// {
-		// 	previous = current;
-		// 	current  = arena_arr[current]->next;
-		// }
-        previous = arena_arr[free_node]->previous;
-
-        /** If we found a free node and we haven't run off the end of the list */
-		if (previous >= -1)
-		{
- 			ret = insertNodeInternal(previous, free_node);
-		}
-        /** If we ran off the end of the list then insert on the tail of the list */
-		// else if( current == -1 )
-		// {
-		// 	ret = insertNodeInternal(arena_arr[previous]->previous, index);
-		// }
-
-    /**
-     * Now that our new node is linked in lets set the value and mark this array element
-     * as being used.
-     */
-		arena_arr[indexx]->size = size;
-		arena_arr[indexx]->type = P;
-        arena_arr[free_node]->size -= size;
-
-        if(previous > -1)
+    while(count != 2)
+    {
+        while(j < MAX_ALLOC && j != -1)
         {
-            arena_arr[indexx]->arena = (arena_arr[previous]->arena + arena_arr[previous]->size);
+            if (arena_arr[j].type == H && arena_arr[j].size >= size)
+            {
+                return j;
+            }
+            else
+                j = arena_arr[j].next;
         }
-        else
-            arena_arr[indexx]->arena = head;
-
-        if(initialized == 0)
-        {
-            //index++;
-            initialized = 1;
-        }
-	}
-
-	return ret;
+        j = findRootNode();
+        count++;
+    }
+	return -1;
 }
 
 
-int insertNodeInternal(int previous, int current)
+void insertNode(int indexOfHole, size_t size)
 {
-	/**
-	 *  Initialize our current links to an invalid index
-	 *  -1 signifies the end of the list on either end
-	 */
- 	arena_arr[current]->previous = -1;
-	arena_arr[current]->next = -1;
+  size = ALIGN4(size);
+  arena_arr[indexx].size = size;
+  arena_arr[indexx].type = P;
+  arena_arr[indexx].arena = arena_arr[indexOfHole].arena;
+  arena_arr[indexx].next = indexOfHole;
+  arena_arr[indexx].previous = arena_arr[indexOfHole].previous;
 
-    indexx++;
+  arena_arr[arena_arr[indexOfHole].previous].next = indexx;
 
-    /**
-	 * Make sure we have a previous node.  If there
-	 * was no previous node then the previous value
-	 * would be -1
-	 */
-	if (previous >= 0)
-	{
-		int temp;
-		/**
-		 * Connect the current node with the previous node
-		 * if it exists and store off previous->next.
-		 * Then set previous->next to current
-		 */
-		arena_arr[indexx]->previous = previous;
+  arena_arr[indexOfHole].size = arena_arr[indexOfHole].size - size;
 
-		temp = arena_arr[previous]->next;
-		arena_arr[previous]->next = indexx;
-		arena_arr[indexx]->next = temp;
+  arena_arr[indexOfHole].arena = arena_arr[indexOfHole].arena + size;
+  arena_arr[indexOfHole].previous = indexx;
+}
 
-	}
-	// else if ( arena_arr[rootNode]->previous == -1 && arena_arr[rootNode]->next == -1)
-	// {
-	// 	/* Do nothing since this is the first node in the linked list. */
-	// }
-	/**
-	 * If we have a previous value -1 we're replacing the root node
-	 * so after inserting it make sure to update the rootNode
-	 */
-	else
-	{
-		arena_arr[rootNode]->previous = indexx;
-		arena_arr[indexx]->previous = -1;
-		arena_arr[indexx]->next = rootNode;
-		rootNode = indexx;
-	}
+void printArr() {
+  int index = findRootNode();
+  while(arena_arr[index].next != -1) {
+    printf("index: %d\n", index);
+    printf("size: %ld\n", arena_arr[index].size);
+    printf("type: %d\n", arena_arr[index].type);
+    printf("pointer: %p\n", arena_arr[index].arena);
+    printf("next: %d\n", arena_arr[index].next);
+    printf("previous: %d\n\n", arena_arr[index].previous);
 
-    if(arena_arr[indexx]->arena != NULL)
-	   return 0;
-    else
-        return -1;
+    index = arena_arr[index].next;
+  }
+  printf("index: %d\n", index);
+  printf("size: %ld\n", arena_arr[index].size);
+  printf("type: %d\n", arena_arr[index].type);
+  printf("pointer: %p\n", arena_arr[index].arena);
+  printf("next: %d\n", arena_arr[index].next);
+  printf("previous: %d\n\n", arena_arr[index].previous);
+}
+
+int findRootNode() {
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].previous == -1)
+      return i;
+  }
+  return -1;
 }
