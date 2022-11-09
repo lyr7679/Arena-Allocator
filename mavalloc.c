@@ -74,27 +74,28 @@ int initialized = 0;
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 {
-    size = ALIGN4(size);
+  indexx = 0;
+  size = ALIGN4(size);
+  initialized = 0;
+  rootNode = 1;
 
-    if(size < 0)
-        return -1;
+  if(size < 0)
+      return -1;
 
-    curr_alg = algorithm;
+  curr_alg = algorithm;
 
-    head = malloc(size);
+  head = malloc(size);
 
-    arena_arr[0].size = size;
-    arena_arr[0].arena = head;
-    arena_arr[0].type = H;
-    arena_arr[0].next = -1;
-    arena_arr[0].previous = -1;
-    
-    if(arena_arr[0].arena == NULL)
-        return -1;
+  arena_arr[0].size = size;
+  arena_arr[0].arena = head;
+  arena_arr[0].type = H;
+  arena_arr[0].next = -1;
+  arena_arr[0].previous = -1;
+  
+  if(arena_arr[0].arena == NULL)
+      return -1;
 
-    //insertNode(0, size);
-
-    return 0;
+  return 0;
 }
 
 void mavalloc_destroy( )
@@ -162,7 +163,7 @@ int mavalloc_size( )
 {
   int number_of_nodes = 0;
   for(int i = 0; i <= indexx; i++) {
-    if(arena_arr[i].size > 0 && arena_arr[i].type == P)
+    if(arena_arr[i].size > 0)
       number_of_nodes++;
   }
 
@@ -206,7 +207,7 @@ void checkMerge(int current)
         temp = arena_arr[next].next;
         arena_arr[temp].previous = current;
     }
-    else if(arena_arr[previous].type == H)
+    if(arena_arr[previous].type == H)
     {
         arena_arr[previous].size += arena_arr[current].size;
         arena_arr[current].size = 0;
@@ -219,7 +220,7 @@ void checkMerge(int current)
 
 void * first_fit(size_t size)
 {
-return NULL;
+  return NULL;
 }
 
 void * next_fit(size_t size)
@@ -262,7 +263,6 @@ int worst_fit(size_t size)
 }
 
 void insertNode(int indexOfHole, size_t size) {
-  size = ALIGN4(size);
   arena_arr[indexx].size = size;
   arena_arr[indexx].type = P;
   arena_arr[indexx].arena = arena_arr[indexOfHole].arena;
@@ -300,6 +300,7 @@ int findRootNode() {
       return i;
   }
   return -1;
+<<<<<<< HEAD
 =======
 // The MIT License (MIT)
 //
@@ -602,3 +603,7 @@ int findRootNode() {
   return -1;
 >>>>>>> raquel_branch
 }
+=======
+}
+
+>>>>>>> 62fe9dd7a44553beaa7158ce55cfb75e03410a3e
