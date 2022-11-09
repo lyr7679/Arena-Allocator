@@ -20,6 +20,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// * added best fit and worst fit, think its done but i havent checked edge cases
+// * added a print array function, will have to remove declaration in mavalloch.h later
+// * added insertnode1, think it works, can use with all fit functions
+// * removed the indexx++ in the mavalloc init because it messes with my code, making it add twice and have an empty node at spot 1
+// * need a good way to track head of array
+// * i think the fit functions should return the index of the hole like i did but up to you (need for insertnode1)
+// * also need a function that will free up node that have 0 size, the way insertnode1 works is that even if size is zero for hole
+//   it will still stay in arena_arr. this will mess us up when we have to count the nodes, also makes it so that it will have to 
+//   travel through the empty node to traverse arena_arr
+// * also i only changed benchmark 4 so keep that in mind
+
 #include "mavalloc.h"
 #include <stdlib.h>
 #include <stdio.h>
