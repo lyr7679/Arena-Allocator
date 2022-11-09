@@ -79,8 +79,6 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
     if(arena_arr[0].arena == NULL)
         return -1;
 
-    insertNode(0, size);
-
     return 0;
 }
 
