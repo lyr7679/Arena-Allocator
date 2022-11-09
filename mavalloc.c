@@ -60,6 +60,7 @@ int best_fit(size_t);
 int worst_fit(size_t);
 void checkMerge(int);
 void insertNode(int indexOfHole, size_t size);
+int findRootNode();
 void printArr();
 
 //global variables
@@ -90,7 +91,7 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
     if(arena_arr[0].arena == NULL)
         return -1;
 
-    insertNode(0, size);
+    //insertNode(0, size);
 
     return 0;
 }
@@ -266,7 +267,7 @@ void insertNode(int indexOfHole, size_t size) {
 }
 
 void printArr() {
-  int index = rootNode;
+  int index = findRootNode();;
   while(arena_arr[index].next != -1) {
     printf("size: %ld\n", arena_arr[index].size);
     printf("type: %d\n", arena_arr[index].type);
@@ -281,4 +282,12 @@ void printArr() {
   printf("pointer: %p\n", arena_arr[index].arena);
   printf("next: %d\n", arena_arr[index].next);
   printf("previous: %d\n\n", arena_arr[index].previous);
+}
+
+int findRootNode() {
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].previous == -1)
+      return i;
+  }
+  return -1;
 }
