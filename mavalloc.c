@@ -265,6 +265,40 @@ int next_fit(size_t size)
 	return -1;
 }
 
+int best_fit(size_t size)
+{
+  int bestFitIndex = -1;
+  int temp1 = INT_MAX;
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].type == H && arena_arr[i].size >= size) {
+      if(temp1 > (arena_arr[i].size - size)) {
+        temp1 = arena_arr[i].size - size;
+        bestFitIndex = i;
+      }
+    }
+  }
+  if(bestFitIndex != -1)
+    indexx++;
+  return bestFitIndex;
+}
+
+int worst_fit(size_t size)
+{
+  int worstFitIndex = -1;
+  int temp1 = -1;
+  for(int i = 0; i <= indexx; i++) {
+    if(arena_arr[i].type == H && arena_arr[i].size >= size) {
+      if(temp1 < (arena_arr[i].size - size)) {
+        temp1 = arena_arr[i].size - size;
+        worstFitIndex = i;
+      }
+    }
+  }
+  if(worstFitIndex != -1)
+    indexx++;
+  return worstFitIndex;
+}
+
 
 void insertNode(int indexOfHole, size_t size)
 {
