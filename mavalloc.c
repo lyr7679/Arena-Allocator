@@ -53,7 +53,7 @@ void insertNode(int, size_t);
 int findRootNode();
 
 //global variables
-struct Node arena_arr[MAX_ALLOC];
+struct Node arena_arr[MAX_ALLOC] = {};
 //indexx is the number denoting the current node
 int indexx = 0;
 //used in a switch/case for the 4 different fits
@@ -80,8 +80,10 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
         return -1;
 
     curr_alg = algorithm;
+    
+    size = ALIGN4(size);
 
-    head = malloc(ALIGN4(size));
+    head = malloc(size);
 
     arena_arr[0].arena = head;
     arena_arr[0].size = size;
@@ -100,6 +102,13 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
 //frees initially allocated address to clear array/linked list
 void mavalloc_destroy( )
 {
+  for(int i = 0; i <= indexx; i++) {
+    arena_arr[i].arena = NULL;
+    arena_arr[i].size = 0;
+    arena_arr[i].type = 0;
+    arena_arr[i].next = 0;
+    arena_arr[i].previous = 0;
+  }
   free(head);
   return;
 }
@@ -108,6 +117,7 @@ void * mavalloc_alloc( size_t size )
 {
     void * new_ptr = NULL;
     int indexOfHole;
+    size = ALIGN4(size);
 
     switch(curr_alg)
         {
@@ -220,7 +230,7 @@ void checkMerge(int current)
         arena_arr[temp].previous = current;
     }
     //combining if previous node is also a hole
-    else if(arena_arr[previous].type == H)
+    if(arena_arr[previous].type == H)
     {
         arena_arr[previous].size += arena_arr[current].size;
         arena_arr[current].size = 0;
@@ -285,10 +295,10 @@ int best_fit(size_t size)
 int worst_fit(size_t size)
 {
   int worstFitIndex = -1;
-  int temp1 = -1;
+  int temp1 = 0;
   for(int i = 0; i <= indexx; i++) {
     if(arena_arr[i].type == H && arena_arr[i].size >= size) {
-      if(temp1 < (arena_arr[i].size - size)) {
+      if(temp1 <= (arena_arr[i].size - size)) {
         temp1 = arena_arr[i].size - size;
         worstFitIndex = i;
       }
@@ -319,6 +329,8 @@ void insertNode(int indexOfHole, size_t size)
 
 void printArr() {
   int index = findRootNode();
+  if(index == -1)
+    return;
   while(arena_arr[index].next != -1) {
     printf("index: %d\n", index);
     printf("size: %ld\n", arena_arr[index].size);

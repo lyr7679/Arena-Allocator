@@ -23,22 +23,31 @@ int main( int argc, char * argv[] )
   // mavalloc_free(pointer_arr[4]);
   // //mavalloc_alloc(2000);
 
-  // int x = mavalloc_size();
-
+  // printArr();
+  // mavalloc_destroy();
+  // printf("---------------------------");
   // printArr();
 
-  // printf("%d\n", x);
-  mavalloc_init(128000, BEST_FIT);
+  mavalloc_init( 128000, BEST_FIT );
 
-  char *ptr1 = (char *)mavalloc_alloc(65535);
-  char *ptr2 = (char *)mavalloc_alloc(65);
+  char * ptr1    = (char*)mavalloc_alloc( 65535 );
+  char * ptr2    = (char*)mavalloc_alloc( 65 );
 
-  mavalloc_free(ptr1);
-  mavalloc_free(ptr2);
+  // If you failed here your allocation on line 39 failed
+  //TINYTEST_ASSERT( ptr1 );
 
-  int size = mavalloc_size();
+  // If you failed here your allocation on line 40 failed
+  //TINYTEST_ASSERT( ptr2 );
 
   printArr();
-  printf("%d\n", size);
+
+  printf("\n--------------------------\n");
+
+  mavalloc_free( ptr1 );
+  mavalloc_free( ptr2 );
+
+  printArr();
+
+  int size = mavalloc_size();
   return 0;
 }
