@@ -2,54 +2,33 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
-// WORST FIT
-
-#define MAX 10
-int allocations[] = {0, 12, 65, 120, 1000, 2000, 5000, 10000, 3000, 2000};
-
+// This is the control benchmark to test the c malloc
+#define MAX 4000
+int allocations1[MAX];
+int allocations2[MAX];
+void *pointers[MAX] = {};
 int main( int argc, char * argv[] )
 {
-  // mavalloc_init(24000, WORST_FIT);
-  // clock_t t;
-  // for (int i = 0; i < MAX; i++) {
-  //   t = clock();
-  //   mavalloc_alloc(allocations[i]);
-  //   t = clock() - t;
-  //   printf("Time for WORST FIT mavalloc of size %d to complete: %0.2f ms\n", allocations[i], (double)t);
-  // }
+  srand(time(NULL));
+  for(int i = 0; i < MAX; i++) {
+    allocations1[i] = rand() % 5000;
+    allocations2[i] = rand() % 10000;
+  }
+  clock_t t;
+  t = clock();
+  mavalloc_init(150000, WORST_FIT);
+  for (int i = 0; i < MAX; i++) {
+    pointers[i] = mavalloc_alloc(allocations1[i]);
+  }
+  for(int i = 0; i < MAX; i+=2) {
+    mavalloc_free(pointers[i]);
+  }
+  for(int i = 0; i < MAX; i++) {
+    pointers[i] = mavalloc_alloc(allocations2[i]);
+  }
 
-  // printArr();
+  t = clock() - t;
 
-  mavalloc_init( 71608, WORST_FIT );
-  char * ptr1    = ( char * ) mavalloc_alloc ( 65535 );
-  char * buffer1 = ( char * ) mavalloc_alloc( 4 );
-  char * ptr4    = ( char * ) mavalloc_alloc ( 64 );
-  char * buffer2 = ( char * ) mavalloc_alloc( 4 );
-  char * ptr2    = ( char * ) mavalloc_alloc ( 6000 );
-
-  printArr();
-
-  // If you failed here your allocation on line 206 failed
-  //TINYTEST_ASSERT( ptr1 );
-
-  // If you failed here your allocation on line 210 failed
-  //TINYTEST_ASSERT( ptr2 );
-
-  // If you failed here your allocation on line 208 failed
-  //TINYTEST_ASSERT( ptr4 );
-
-  mavalloc_free( ptr1 );
-  mavalloc_free( ptr2 );
-
-  buffer1 = buffer1;
-  buffer2 = buffer2;
-  ptr4 = ptr4;
-
-  char * ptr3 = ( char * ) mavalloc_alloc ( 1000 );
-
-  // If you failed here then your worst fit picked the wrong node on line 228
-  //TINYTEST_EQUAL( ptr1, ptr3 );
-  mavalloc_destroy( );
-  
+  printf("Time for best fit to complete: %0.2f ms\n", (double)t);
   return 0;
 }

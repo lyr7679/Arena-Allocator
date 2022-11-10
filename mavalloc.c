@@ -30,8 +30,8 @@
 
 enum TYPE
 {
-    P,
-    H
+  P,
+  H
 };
 
 struct Node {
@@ -322,7 +322,6 @@ void insertNode(int indexOfHole, size_t size)
   arena_arr[arena_arr[indexOfHole].previous].next = indexx;
 
   arena_arr[indexOfHole].size = arena_arr[indexOfHole].size - size;
-
   arena_arr[indexOfHole].arena = arena_arr[indexOfHole].arena + size;
   arena_arr[indexOfHole].previous = indexx;
 }
