@@ -326,27 +326,27 @@ void insertNode(int indexOfHole, size_t size)
   arena_arr[indexOfHole].previous = indexx;
 }
 
-void printArr() {
-  int index = findRootNode();
-  if(index == -1)
-    return;
-  while(arena_arr[index].next != -1) {
-    printf("index: %d\n", index);
-    printf("size: %ld\n", arena_arr[index].size);
-    printf("type: %d\n", arena_arr[index].type);
-    printf("pointer: %p\n", arena_arr[index].arena);
-    printf("next: %d\n", arena_arr[index].next);
-    printf("previous: %d\n\n", arena_arr[index].previous);
+// void printArr() {
+//   int index = findRootNode();
+//   if(index == -1)
+//     return;
+//   while(arena_arr[index].next != -1) {
+//     printf("index: %d\n", index);
+//     printf("size: %ld\n", arena_arr[index].size);
+//     printf("type: %d\n", arena_arr[index].type);
+//     printf("pointer: %p\n", arena_arr[index].arena);
+//     printf("next: %d\n", arena_arr[index].next);
+//     printf("previous: %d\n\n", arena_arr[index].previous);
 
-    index = arena_arr[index].next;
-  }
-  printf("index: %d\n", index);
-  printf("size: %ld\n", arena_arr[index].size);
-  printf("type: %d\n", arena_arr[index].type);
-  printf("pointer: %p\n", arena_arr[index].arena);
-  printf("next: %d\n", arena_arr[index].next);
-  printf("previous: %d\n\n", arena_arr[index].previous);
-}
+//     index = arena_arr[index].next;
+//   }
+//   printf("index: %d\n", index);
+//   printf("size: %ld\n", arena_arr[index].size);
+//   printf("type: %d\n", arena_arr[index].type);
+//   printf("pointer: %p\n", arena_arr[index].arena);
+//   printf("next: %d\n", arena_arr[index].next);
+//   printf("previous: %d\n\n", arena_arr[index].previous);
+// }
 
 int findRootNode() {
   for(int i = 0; i <= indexx; i++) {
