@@ -49,8 +49,6 @@ enum ALGORITHM
  **/
 int mavalloc_init( size_t size, enum ALGORITHM algorithm );
 
-void printArr(); //remove later, only for testing
-
 /**
  * @brief Destroy the arena
  *
