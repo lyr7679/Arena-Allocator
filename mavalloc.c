@@ -30,16 +30,17 @@
 
 enum TYPE
 {
-  P,
-  H
+    P,
+    H
 };
 
-struct Node {
-  size_t size;
-  enum TYPE type;
-  void * arena;
-  int next;
-  int previous;
+struct Node 
+{
+    size_t size;
+    enum TYPE type;
+    void * arena;
+    int next;
+    int previous;
 };
 
 //function prototypes
@@ -80,7 +81,7 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
         return -1;
 
     curr_alg = algorithm;
-    
+
     size = ALIGN4(size);
 
     head = malloc(size);
@@ -97,20 +98,22 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
         return -1;
 
     return 0;
-}
+    }
 
-//frees initially allocated address to clear array/linked list
-void mavalloc_destroy( )
-{
-  for(int i = 0; i <= indexx; i++) {
-    arena_arr[i].arena = NULL;
-    arena_arr[i].size = 0;
-    arena_arr[i].type = 0;
-    arena_arr[i].next = 0;
-    arena_arr[i].previous = 0;
-  }
-  free(head);
-  return;
+    //frees initially allocated address to clear array/linked list
+    void mavalloc_destroy( )
+    {
+    for(int i = 0; i <= indexx; i++) 
+    {
+        arena_arr[i].size = 0;
+        arena_arr[i].type = 0;
+        arena_arr[i].next = 0;
+        arena_arr[i].previous = 0;
+        arena_arr[i].arena = NULL;
+    
+    }
+    free(head);
+    return;
 }
 
 void * mavalloc_alloc( size_t size )
@@ -146,25 +149,27 @@ void * mavalloc_alloc( size_t size )
         }
         case BEST_FIT:
         {
-          indexOfHole = best_fit(size);
-          if(indexOfHole != -1) { 
-            insertNode(indexOfHole, size);
-            new_ptr = arena_arr[indexx].arena; 
-          }    
-          break;
+            indexOfHole = best_fit(size);
+            if(indexOfHole != -1) 
+            { 
+                insertNode(indexOfHole, size);
+                new_ptr = arena_arr[indexx].arena; 
+            }    
+            break;
         }
         case WORST_FIT:
         {
-          indexOfHole = worst_fit(size);
-          if(indexOfHole != -1) {
-            insertNode(indexOfHole, size); 
-            new_ptr = arena_arr[indexx].arena; 
-          } 
+            indexOfHole = worst_fit(size);
+            if(indexOfHole != -1) 
+            {
+                insertNode(indexOfHole, size); 
+                new_ptr = arena_arr[indexx].arena; 
+            } 
           break;
         }
     }
-  // only return NULL on failure
-  return new_ptr;
+    // only return NULL on failure
+    return new_ptr;
 }
 
 void mavalloc_free( void * ptr )
@@ -183,12 +188,13 @@ void mavalloc_free( void * ptr )
 
 int mavalloc_size( )
 {
-  int number_of_nodes = 0;
-  for(int i = 0; i <= indexx; i++) {
-    if(arena_arr[i].size > 0)
-      number_of_nodes++;
-  }
-  return number_of_nodes;
+    int number_of_nodes = 0;
+    for(int i = 0; i <= indexx; i++) 
+    {
+        if(arena_arr[i].size > 0)
+            number_of_nodes++;
+    }
+    return number_of_nodes;
 }
 
 //first fit: insert into first free node found
@@ -247,9 +253,9 @@ void checkMerge(int current)
 //if second loop occurs and still no free node is found, then return -1
 int next_fit(size_t size)
 {
-  //j is used as a current node index
-	int j = findRootNode();
-  int count = 0;
+    //j is used as a current node index
+    int j = findRootNode();
+    int count = 0;
 
     //if we've already started next fit, we'll start at the last left off node
     //otherwise we start the search at the root node
@@ -277,59 +283,64 @@ int next_fit(size_t size)
 
 int best_fit(size_t size)
 {
-  int bestFitIndex = -1;
-  int temp1 = INT_MAX;
-  for(int i = 0; i <= indexx; i++) {
-    if(arena_arr[i].type == H && arena_arr[i].size >= size) {
-      if(temp1 > (arena_arr[i].size - size)) {
-        temp1 = arena_arr[i].size - size;
-        bestFitIndex = i;
-      }
+    int bestFitIndex = -1;
+    int temp1 = INT_MAX;
+    for(int i = 0; i <= indexx; i++) {
+        if(arena_arr[i].type == H && arena_arr[i].size >= size) 
+        {
+            if(temp1 > (arena_arr[i].size - size)) 
+            {
+                temp1 = arena_arr[i].size - size;
+                bestFitIndex = i;
+            }
+        }
     }
-  }
-  if(bestFitIndex != -1)
-    indexx++;
-  return bestFitIndex;
+    if(bestFitIndex != -1)
+        indexx++;
+    return bestFitIndex;
 }
 
 int worst_fit(size_t size)
 {
-  int worstFitIndex = -1;
-  int temp1 = 0;
-  for(int i = 0; i <= indexx; i++) {
-    if(arena_arr[i].type == H && arena_arr[i].size >= size) {
-      if(temp1 <= (arena_arr[i].size - size)) {
-        temp1 = arena_arr[i].size - size;
-        worstFitIndex = i;
-      }
-    }
-  }
-  if(worstFitIndex != -1)
-    indexx++;
-  return worstFitIndex;
+    int worstFitIndex = -1;
+    int temp1 = 0;
+        for(int i = 0; i <= indexx; i++) {
+            if(arena_arr[i].type == H && arena_arr[i].size >= size) 
+                {
+                if(temp1 <= (arena_arr[i].size - size)) 
+                {
+                    temp1 = arena_arr[i].size - size;
+                    worstFitIndex = i;
+                }
+            }
+        }
+    if(worstFitIndex != -1)
+        indexx++;
+    return worstFitIndex;
 }
 
 
 void insertNode(int indexOfHole, size_t size)
 {
-  size = ALIGN4(size);
-  arena_arr[indexx].size = size;
-  arena_arr[indexx].type = P;
-  arena_arr[indexx].arena = arena_arr[indexOfHole].arena;
-  arena_arr[indexx].next = indexOfHole;
-  arena_arr[indexx].previous = arena_arr[indexOfHole].previous;
+    size = ALIGN4(size);
+    arena_arr[indexx].size = size;
+    arena_arr[indexx].type = P;
+    arena_arr[indexx].arena = arena_arr[indexOfHole].arena;
+    arena_arr[indexx].next = indexOfHole;
+    arena_arr[indexx].previous = arena_arr[indexOfHole].previous;
 
-  arena_arr[arena_arr[indexOfHole].previous].next = indexx;
+    arena_arr[arena_arr[indexOfHole].previous].next = indexx;
 
-  arena_arr[indexOfHole].size = arena_arr[indexOfHole].size - size;
-  arena_arr[indexOfHole].arena = arena_arr[indexOfHole].arena + size;
-  arena_arr[indexOfHole].previous = indexx;
+    arena_arr[indexOfHole].size = arena_arr[indexOfHole].size - size;
+    arena_arr[indexOfHole].arena = arena_arr[indexOfHole].arena + size;
+    arena_arr[indexOfHole].previous = indexx;
 }
 
 int findRootNode() {
-  for(int i = 0; i <= indexx; i++) {
-    if(arena_arr[i].previous == -1)
-      return i;
-  }
-  return -1;
+    for(int i = 0; i <= indexx; i++) 
+    {
+        if(arena_arr[i].previous == -1)
+            return i;
+    }
+    return -1;
 }

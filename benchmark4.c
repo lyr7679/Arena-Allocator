@@ -10,27 +10,38 @@ void *pointers[MAX] = {};
 int main( int argc, char * argv[] )
 {
   srand(time(NULL));
-  for(int i = 0; i < MAX; i++) {
+  for(int i = 0; i < MAX; i++) 
+  {
     allocations1[i] = rand() % 15000;
     allocations2[i] = rand() % 5000;
-  }
+  }  
   clock_t t, t1, t2, t3;
+
   t = clock();
   mavalloc_init(30000000, BEST_FIT);
   t1 = clock();
-  for (int i = 0; i < MAX; i++) {
+
+  for (int i = 0; i < MAX; i++) 
+  {
     pointers[i] = mavalloc_alloc(allocations1[i]);
   }
+
   t1 = clock() - t1;
   t2 = clock();
-  for(int i = 0; i < MAX; i+=2) {
+
+  for(int i = 0; i < MAX; i+=2) 
+  {
     mavalloc_free(pointers[i]);
   }
+
   t2 = clock() - t2;
   t3 = clock();
-  for(int i = 0; i < MAX; i++) {
+
+  for(int i = 0; i < MAX; i++) 
+  {
     pointers[i] = mavalloc_alloc(allocations2[i]);
   }
+  
   t3 = clock() - t3;
   t = clock() - t;
 
