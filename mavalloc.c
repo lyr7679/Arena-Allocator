@@ -50,7 +50,6 @@ int best_fit(size_t);
 int worst_fit(size_t);
 void checkMerge(int);
 void insertNode(int, size_t);
-int findRootNode();
 
 //global variables
 struct Node arena_arr[MAX_ALLOC] = {};
@@ -65,6 +64,8 @@ int nf_indexx = 0;
 //flag used to denote if the first free node
 //has been found with next fit
 int initialized = 0;
+//head index of arena_arr
+int headIndex = 0;
 
 
 int mavalloc_init( size_t size, enum ALGORITHM algorithm )
@@ -74,6 +75,7 @@ int mavalloc_init( size_t size, enum ALGORITHM algorithm )
     indexx = 0;
     initialized = 0;
     nf_indexx = 0;
+    headIndex = 0;
     head = NULL;
 
     if(size < 0)
@@ -195,7 +197,7 @@ int mavalloc_size( )
 //always start at beginning of table
 int first_fit(size_t size)
 {
-	int j = findRootNode();
+    int j = headIndex;
     while(j < MAX_ALLOC && j != -1)
     {
         if (arena_arr[j].type == H && arena_arr[j].size >= size)
@@ -207,7 +209,7 @@ int first_fit(size_t size)
             j = arena_arr[j].next;
         }
     }
-	return -1;
+    return -1;
 }
 
 //check previous and next to see if there's a hole
@@ -248,7 +250,7 @@ void checkMerge(int current)
 int next_fit(size_t size)
 {
   //j is used as a current node index
-	int j = findRootNode();
+	int j = headIndex;
   int count = 0;
 
     //if we've already started next fit, we'll start at the last left off node
@@ -269,7 +271,7 @@ int next_fit(size_t size)
             else
                 j = arena_arr[j].next;
         }
-        j = findRootNode();
+        j = headIndex;
         count++;
     }
 	return -1;
@@ -324,12 +326,8 @@ void insertNode(int indexOfHole, size_t size)
   arena_arr[indexOfHole].size = arena_arr[indexOfHole].size - size;
   arena_arr[indexOfHole].arena = arena_arr[indexOfHole].arena + size;
   arena_arr[indexOfHole].previous = indexx;
-}
 
-int findRootNode() {
-  for(int i = 0; i <= indexx; i++) {
-    if(arena_arr[i].previous == -1)
-      return i;
+  if(arena_arr[indexx].previous == -1) {
+    headIndex = indexx;
   }
-  return -1;
 }

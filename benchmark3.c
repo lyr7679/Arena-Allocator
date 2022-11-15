@@ -3,7 +3,7 @@
 #include <time.h>
 #include <stdio.h>
 // This is the control benchmark to test the c malloc
-#define MAX 1000
+#define MAX 500
 void *pointers[MAX] = {};
 int main( int argc, char * argv[] )
 {
@@ -12,7 +12,7 @@ int main( int argc, char * argv[] )
   mavalloc_init(300000000, FIRST_FIT);
   t1 = clock();
   for (int i = 0; i < MAX; i++) {
-    pointers[i] = mavalloc_alloc(10000);
+    pointers[i] = mavalloc_alloc(250000);
   }
   t1 = clock() - t1;
   t2 = clock();
@@ -22,7 +22,7 @@ int main( int argc, char * argv[] )
   t2 = clock() - t2;
   t3 = clock();
   for(int i = 0; i < MAX; i++) {
-    pointers[i] = mavalloc_alloc(5000);
+    pointers[i] = mavalloc_alloc(250000);
   }
   t3 = clock() - t3;
   t = clock() - t;
