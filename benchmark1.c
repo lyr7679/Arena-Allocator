@@ -12,7 +12,7 @@ int main( int argc, char * argv[] )
   t = clock();
   t1 = clock();
   for (int i = 0; i < MAX; i++) {
-    pointers[i] = malloc(250000);
+    pointers[i] = malloc(i * 500);
   }
   t1 = clock() - t1;
   t2 = clock();
@@ -22,7 +22,7 @@ int main( int argc, char * argv[] )
   t2 = clock() - t2;
   t3 = clock();
   for(int i = 0; i < MAX; i++) {
-    pointers[i] = malloc(250000);
+    pointers[i] = malloc(i * 500);
   }
   t3 = clock() - t3;
   t = clock() - t;
