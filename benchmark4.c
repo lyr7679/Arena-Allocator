@@ -26,10 +26,7 @@ int main( int argc, char * argv[] )
   }
   t3 = clock() - t3;
   t = clock() - t;
-
-  printf("Time for first allocation to complete: %0.2f clocks\n", (double)t1);
-  printf("Time for free to complete: %0.2f clocks\n", (double)t2);
-  printf("Time second allocation to complete: %0.2f clocks\n", (double)t3);
+ 
   printf("Time for best fit to complete: %0.2f clocks\n", (double)t);
 
   return 0;
