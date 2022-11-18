@@ -121,14 +121,12 @@ void * mavalloc_alloc( size_t size )
     int indexOfHole;
     size = ALIGN4(size);
 
-    switch(curr_alg)
-        {
-        case NEXT_FIT:
+    switch(curr_alg) {
+        case NEXT_FIT: 
         {
             indexOfHole = next_fit(size);
             nf_indexx = indexOfHole;
-            if(indexOfHole != -1)
-            {
+            if(indexOfHole != -1) {
                 indexx++;
                 insertNode(indexOfHole, size);
                 new_ptr = arena_arr[indexx].arena;
@@ -138,8 +136,7 @@ void * mavalloc_alloc( size_t size )
         case FIRST_FIT:
         {
             indexOfHole = first_fit(size);
-            if(indexOfHole != -1)
-            {
+            if(indexOfHole != -1) {
                 indexx++;
                 insertNode(indexOfHole, size);
                 new_ptr = arena_arr[indexx].arena;
@@ -169,12 +166,10 @@ void * mavalloc_alloc( size_t size )
   return new_ptr;
 }
 
-void mavalloc_free( void * ptr )
+void mavalloc_free( void * ptr ) 
 {
-    for(int i = 0; i <= indexx; i++)
-    {
-        if(arena_arr[i].arena == ptr)
-        {
+    for(int i = 0; i <= indexx; i++) {
+        if(arena_arr[i].arena == ptr) {
             arena_arr[i].type = H;
             checkMerge(i);
             break;
@@ -183,7 +178,7 @@ void mavalloc_free( void * ptr )
   return;
 }
 
-int mavalloc_size( )
+int mavalloc_size( ) 
 {
   int number_of_nodes = 0;
   for(int i = 0; i <= indexx; i++) {
@@ -198,14 +193,11 @@ int mavalloc_size( )
 int first_fit(size_t size)
 {
     int j = headIndex;
-    while(j < MAX_ALLOC && j != -1)
-    {
-        if (arena_arr[j].type == H && arena_arr[j].size >= size)
-        {
+    while(j < MAX_ALLOC && j != -1) {
+        if (arena_arr[j].type == H && arena_arr[j].size >= size) {
             return j;
         }
-        else
-        {
+        else {
             j = arena_arr[j].next;
         }
     }
@@ -220,8 +212,7 @@ void checkMerge(int current)
     int previous = arena_arr[current].previous;
     int temp = 0;
     //combining if next node is also a hole
-    if(arena_arr[next].type == H)
-    {
+    if(arena_arr[next].type == H) {
         //combing size into current node
         arena_arr[current].size += arena_arr[next].size;
         arena_arr[next].size = 0;
@@ -232,8 +223,7 @@ void checkMerge(int current)
         arena_arr[temp].previous = current;
     }
     //combining if previous node is also a hole
-    if(arena_arr[previous].type == H)
-    {
+    if(arena_arr[previous].type == H) {
         arena_arr[previous].size += arena_arr[current].size;
         arena_arr[current].size = 0;
 
@@ -247,7 +237,7 @@ void checkMerge(int current)
 //inserting a node so we start search from there
 //if nothing found, loop around and try again
 //if second loop occurs and still no free node is found, then return -1
-int next_fit(size_t size)
+int next_fit(size_t size) 
 {
   //j is used as a current node index
 	int j = headIndex;
@@ -260,12 +250,9 @@ int next_fit(size_t size)
     else
         initialized = 1;
 
-    while(count != 2)
-    {
-        while(j < MAX_ALLOC && j != -1)
-        {
-            if (arena_arr[j].type == H && arena_arr[j].size >= size)
-            {
+    while(count != 2) {
+        while(j < MAX_ALLOC && j != -1) {
+            if (arena_arr[j].type == H && arena_arr[j].size >= size) {
                 return j;
             }
             else
