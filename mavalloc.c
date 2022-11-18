@@ -233,10 +233,19 @@ void checkMerge(int current)
     }
 }
 
-//next fit: same as first fit, just tracking where last left off on
-//inserting a node so we start search from there
-//if nothing found, loop around and try again
-//if second loop occurs and still no free node is found, then return -1
+//Name:
+  //next_fit()
+//Expected parameters:
+  //size_t
+//return values:
+  //int
+//Description:
+  //This function is used to return the index of the array of the
+  //correct free hole of appropriate size
+  //we use a global index variable to keep track of where the
+  //search last left off from the previous insertion
+  //if we reach the end, we loop back and search one more time
+  //to catch all the holes at the beginning that were potentially skipped
 int next_fit(size_t size) 
 {
   //j is used as a current node index
@@ -250,6 +259,7 @@ int next_fit(size_t size)
     else
         initialized = 1;
 
+    //loop 2x bc we have to account for when next fit index isnt at root node
     while(count != 2) {
         while(j < MAX_ALLOC && j != -1) {
             if (arena_arr[j].type == H && arena_arr[j].size >= size) {
@@ -258,7 +268,9 @@ int next_fit(size_t size)
             else
                 j = arena_arr[j].next;
         }
+        //set j back to root node to start over
         j = headIndex;
+        //count is the flag used to keep track of how many times we've looped
         count++;
     }
 	return -1;
